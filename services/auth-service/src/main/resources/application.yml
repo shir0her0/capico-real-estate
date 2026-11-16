@@ -15,7 +15,8 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET}
+    # Demo key for local case-study work. Override JWT_SECRET outside local development.
+    secret: ${JWT_SECRET:capico-demo-key-change-for-real-use-2026}
     issuer: capico-auth-service
     expiration-minutes: 30
   bootstrap-admin:

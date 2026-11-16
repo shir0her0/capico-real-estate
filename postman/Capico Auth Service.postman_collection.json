@@ -1,0 +1,115 @@
+{
+  "info": {
+    "name": "Capico Auth Service",
+    "description": "Walk through register, login, protected profile, and client-side logout.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Register a user",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('testEmail', 'capico.' + Date.now() + '@example.com');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Account created', function () { pm.response.to.have.status(201); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Case\",\n  \"lastName\": \"Study\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"simple-demo-password\",\n  \"mobileNumber\": \"9876543210\",\n  \"city\": \"Pune\",\n  \"country\": \"India\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "2. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login succeeded', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('jwt', pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"simple-demo-password\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "3. Get my profile",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Protected profile returned', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt}}", "type": "string" }]
+        },
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/me"
+      }
+    },
+    {
+      "name": "4. Logout (client discards token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Logout returned 204', function () { pm.response.to.have.status(204); });",
+              "pm.collectionVariables.unset('jwt');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt}}", "type": "string" }]
+        },
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "testEmail", "value": "" },
+    { "key": "jwt", "value": "" }
+  ]
+}

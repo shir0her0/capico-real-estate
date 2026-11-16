@@ -39,10 +39,9 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @Operation(summary = "Log out and revoke the current JWT", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Log out by discarding the current token in the client", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal Jwt jwt) {
-        authService.logout(jwt);
+    public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent().build();
     }
 

@@ -9,7 +9,6 @@ import com.capico.auth.entity.AppUser;
 import com.capico.auth.exception.DuplicateEmailException;
 import com.capico.auth.exception.InvalidCredentialsException;
 import com.capico.auth.repository.AppUserRepository;
-import com.capico.auth.repository.RevokedTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,25 +21,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @Service
 public class AuthService {
     private final AppUserRepository users;
-    private final RevokedTokenRepository revokedTokens;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
     private final String issuer;
     private final long expirationMinutes;
 
     public AuthService(AppUserRepository users,
-                       RevokedTokenRepository revokedTokens,
                        PasswordEncoder passwordEncoder,
                        JwtEncoder jwtEncoder,
                        @Value("${security.jwt.issuer}") String issuer,
                        @Value("${security.jwt.expiration-minutes}") long expirationMinutes) {
         this.users = users;
-        this.revokedTokens = revokedTokens;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
         this.issuer = issuer;
@@ -77,21 +72,12 @@ public class AuthService {
                 .subject(user.getEmail())
                 .issuedAt(issuedAt)
                 .expiresAt(expiresAt)
-                .id(UUID.randomUUID().toString())
                 .claim("roles", List.of(user.getRole().name()))
                 .claim("userId", user.getUserId().toString())
                 .build();
 
         return new LoginResponse(jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue(),
                 "Bearer", expirationMinutes * 60);
-    }
-
-    @Transactional
-    public void logout(Jwt jwt) {
-        String tokenId = jwt.getId();
-        if (tokenId != null && !revokedTokens.existsById(tokenId)) {
-            revokedTokens.save(new com.capico.auth.entity.RevokedToken(tokenId, jwt.getExpiresAt()));
-        }
     }
 
     @Transactional(readOnly = true)
