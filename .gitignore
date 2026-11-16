@@ -22,3 +22,20 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Maven build output and wrapper download
+**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+**/application-local.yml
+**/application-local.properties
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
