@@ -76,6 +76,14 @@ public class AppUser {
         this.status = AccountStatus.ACTIVE;
     }
 
+    public static AppUser bootstrapAdmin(String firstName, String lastName, String email,
+                                         String passwordHash, String mobileNumber) {
+        AppUser admin = new AppUser(firstName, lastName, email, passwordHash,
+                mobileNumber, null, null, null, null);
+        admin.role = Role.ADMIN;
+        return admin;
+    }
+
     @PrePersist
     void setCreatedDate() {
         if (createdDate == null) {

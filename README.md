@@ -41,6 +41,17 @@ $random.GetBytes($keyBytes)
 $env:JWT_SECRET = [Convert]::ToBase64String($keyBytes)
 ```
 
+To create the first administrator at startup, also set the following values. The bootstrap creates the account only when that email does not already exist; public registration always assigns the `USER` role.
+
+```powershell
+$env:BOOTSTRAP_ADMIN_ENABLED = "true"
+$env:BOOTSTRAP_ADMIN_EMAIL = "admin@example.com"
+$env:BOOTSTRAP_ADMIN_PASSWORD = "choose-a-strong-password"
+$env:BOOTSTRAP_ADMIN_FIRST_NAME = "Capico"
+$env:BOOTSTRAP_ADMIN_LAST_NAME = "Admin"
+$env:BOOTSTRAP_ADMIN_MOBILE_NUMBER = "9999999999"
+```
+
 Then run:
 
 ```powershell
